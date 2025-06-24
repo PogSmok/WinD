@@ -1,0 +1,3 @@
+LIBRARY winD
+EXPORTS
+    render_frame
