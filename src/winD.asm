@@ -62,13 +62,13 @@ render_frame:
     ; ---------------------------
     mov word [rsp], r9w   ; cols
     mov word [rsp+2], r8w ; rows
-
+    
     ; ---------------------------
     ; Prepare SMALL_RECT structure (lpWriteRegion)
     ; SMALL_RECT: 4 SHORTs (Left, Top, Right, Bottom) defining region to write
     ; Left and Top are zero (start at top-left of screen)
     ; Right = cols - 1, Bottom = rows - 1 (zero-based indices)
-    ; Stored at [rsp+4]
+    ; Stored at [rsp+8]
     ; ---------------------------
     mov word [rsp+4], 0 ; Left = 0
     mov word [rsp+6], 0 ; Top = 0
@@ -89,7 +89,7 @@ render_frame:
     ; ---------------------------
     mov rcx, r10     ; hConsoleOutput
     mov rdx, r11     ; lpBuffer
-    lea r8, [rsp]    ; dwBufferSize
+    mov r8d, [rsp]   ; dwBufferSize
     xor r9, r9       ; dwBufferCoord
     lea rax, [rsp+4] ; lpWriteRegion
     mov [rsp+32], rax
