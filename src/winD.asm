@@ -23,8 +23,8 @@ global render_frame
 ;   [rsp+40] = offset_y (vertical offset where to start writing in the console screen buffer)
 ;
 ; The original RSP is at RBP + 8, so:
-;   - offset_x is at [RBP + 8 + 32] = [RBP + 40]
-;   - offset_y is at [RBP + 8 + 40] = [RBP + 48]
+;   - offset_x is at [RBP + 8 + 40] = [RBP + 48]
+;   - offset_y is at [RBP + 8 + 48] = [RBP + 56]
 ;
 ; Description:
 ;   Writes a rectangular buffer of character and attribute data to the Windows console
@@ -74,8 +74,8 @@ render_frame:
     ; ---------------------------
     ; Load offset parameters from stack
     ; ---------------------------
-    mov cx, word [rbp+40]  ; offset_x
-    mov dx, word [rbp+48]  ; offset_y
+    mov cx, word [rbp+48]  ; offset_x
+    mov dx, word [rbp+56]  ; offset_y
 
     ; ---------------------------
     ; Prepare SMALL_RECT structure (lpWriteRegion)
