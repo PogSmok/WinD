@@ -12,17 +12,24 @@ global render_frame
 %define INVALID_HANDLE_VALUE -1
 
 ; -----------------------------------------------------------------------------
-; void render_frame(CHAR_INFO* buffer, DWORD length, SHORT rows, SHORT cols)
+; void render_frame(CHAR_INFO* buffer, DWORD length, SHORT rows, SHORT cols, SHORT offset_x, SHORT offset_y)
 ;
 ; Parameters:
 ;   rcx = pointer to CHAR_INFO array (buffer to write)
 ;   rdx = length of the buffer
 ;   r8  = rows (number of rows in the buffer)
 ;   r9  = cols (number of columns in the buffer)
+;   [rsp+32] = offset_x (horizontal offset where to start writing in the console screen buffer)
+;   [rsp+40] = offset_y (vertical offset where to start writing in the console screen buffer)
+;
+; The original RSP is at RBP + 8, so:
+;   - offset_x is at [RBP + 8 + 32] = [RBP + 40]
+;   - offset_y is at [RBP + 8 + 40] = [RBP + 48]
 ;
 ; Description:
-;   This function writes a rectangular buffer of character and attribute data
-;   to the Windows console screen buffer using WriteConsoleOutputW.
+;   Writes a rectangular buffer of character and attribute data to the Windows console
+;   screen buffer using WriteConsoleOutputW, starting at the specified (offset_x, offset_y)
+;   position in the console screen buffer. 
 ; -----------------------------------------------------------------------------
 render_frame:
     push rbp
@@ -63,21 +70,34 @@ render_frame:
     mov word [rsp], r9w   ; cols
     mov word [rsp+2], r8w ; rows
     
+
+    ; ---------------------------
+    ; Load offset parameters from stack
+    ; ---------------------------
+    mov cx, word [rbp+40]  ; offset_x
+    mov dx, word [rbp+48]  ; offset_y
+
     ; ---------------------------
     ; Prepare SMALL_RECT structure (lpWriteRegion)
     ; SMALL_RECT: 4 SHORTs (Left, Top, Right, Bottom) defining region to write
-    ; Left and Top are zero (start at top-left of screen)
+    ; Left = offset_x, Top = offset_y
     ; Right = cols - 1, Bottom = rows - 1 (zero-based indices)
     ; Stored at [rsp+8]
     ; ---------------------------
-    mov word [rsp+4], 0 ; Left = 0
-    mov word [rsp+6], 0 ; Top = 0
-    mov ax, r9w
-    dec ax
-    mov word [rsp+8], ax ; Right = cols - 1
-    mov ax, r8w
-    dec ax
-    mov word [rsp+10], ax ; Bottom = rows - 1
+    mov word [rsp+4], cx ; Left = offset_x
+    mov word [rsp+6], dx ; Top = offset_y
+
+    ; Calculate Right = offset_x + cols - 1
+    mov ax, cx          
+    add ax, r9w           
+    dec ax            
+    mov word [rsp+8], ax     ; Right = offset_x + cols - 1
+    
+    ; Calculate Bottom = offset_y + rows - 1
+    mov ax, dx       
+    add ax, r8w   
+    dec ax                 
+    mov word [rsp+10], ax     ; Bottom = offset_y + rows - 1
 
     ; ---------------------------
     ; Set up registers for WriteConsoleOutputW call
