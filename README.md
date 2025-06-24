@@ -4,7 +4,7 @@
 
 # Overview
 
-**WinD** is a high-performance, lightweight Windows console rendering DLL implemented in assembly. Unlike traditional console output methods that print text line-by-line or character-by-character, WinD efficiently writes an entire rectangular buffer of character and attribute data to the console screen in a single API call.
+**WinD** (Windows Display) is a high-performance, lightweight Windows console rendering DLL implemented in assembly. Unlike traditional console output methods that print text line-by-line or character-by-character, WinD efficiently writes an entire rectangular buffer of character and attribute data to the console screen in a single API call.
 
 By leveraging the Windows API function `WriteConsoleOutputW`, WinD updates large regions of the console buffer atomically, minimizing flickering and drastically reducing the number of system calls. This approach enables smooth rendering of rich Unicode and ASCII content with full control over foreground and background colors.
 
