@@ -205,3 +205,83 @@ if result != 0:
 ## Result:
  <img src="images/example.png" alt="WinD Logo" />
 
+# Audio Playback API
+
+WinD also provides simple asynchronous audio playback functions using the Windows PlaySoundW API. These can play .wav files and stop playback on demand. This allows for playing music while rendering frames.
+
+```c
+// Plays a WAV file asynchronously.
+// Parameters:
+//   soundFilePath - wide string path to the WAV file.
+// Returns 0 on success, non-zero Windows error code on failure.
+int play_audio(const wchar_t* soundFilePath);
+```
+
+### Parameters
+
+`soundFilePath` — A wide string (`const wchar_t*`) representing the path to the `.wav` file to be played.
+
+### Return Value
+
+Returns 0 on success.
+
+On failure, returns a non-zero Windows error code (retrievable with GetLastError()), indicating the cause of failure (e.g., file not found, invalid path, or other API errors).
+
+```
+// Stops any currently playing sound.
+// Returns 0 on success, non-zero Windows error code on failure.
+int stop_audio(void);
+```
+
+### Parameters
+
+This function takes no parameters
+
+### Return Value
+
+Returns 0 on success. 
+
+On failure, returns a non-zero Windows error code (retrievable with GetLastError()), indicating the cause of failure (e.g., invalid handle, out-of-range coordinates, or other API errors).
+
+# Example: Playing a .wav file in C
+
+```python
+import ctypes
+import time
+import os
+
+# Load the DLL
+wind = ctypes.WinDLL("./winD.dll")
+
+# Define argument and return types for play_audio and stop_audio
+wind.play_audio.argtypes = [ctypes.c_wchar_p]
+wind.play_audio.restype = ctypes.c_int
+
+wind.stop_audio.argtypes = []
+wind.stop_audio.restype = ctypes.c_int
+
+# Path to your WAV file (use a valid absolute path)
+wav_path = r"C:\Windows\Media\chimes.wav"
+
+# Check if the file exists
+if not os.path.exists(wav_path):
+    print(f"Audio file not found: {wav_path}")
+    exit(1)
+
+# Play the WAV file asynchronously
+result = wind.play_audio(wav_path)
+if result != 0:
+    print(f"play_audio failed with error code: {ctypes.GetLastError()}")
+else:
+    print("Audio started playing asynchronously")
+
+# Wait for 0.3 seconds while the audio plays
+time.sleep(0.3)
+
+# Stop the audio playback
+result = wind.stop_audio()
+if result != 0:
+    print(f"stop_audio failed with error code: {ctypes.GetLastError()}")
+else:
+    print("Audio stopped")
+```
