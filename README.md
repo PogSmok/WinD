@@ -95,7 +95,7 @@ void render_frame(CHAR_INFO* buffer, DWORD length, SHORT rows, SHORT cols, SHORT
 
 Returns 0 on success. 
 
-On failure, returns a non-zero Windows error code (retrievable with GetLastError()), indicating the cause of failure (e.g., invalid handle, out-of-range coordinates, or other API errors).
+On failure, returns a non-zero Windows error code, indicating the cause of failure.
 
 ### Notes
 
@@ -199,8 +199,7 @@ result = wind.render_frame(buffer, buffer_len, rows, cols, offset_x, offset_y)
 
 # Check for errors
 if result != 0:
-    error_code = ctypes.GetLastError()
-    print(f"render_frame failed with error code: {error_code}")
+    print(f"render_frame failed with error code: {result}")
 
 ```
 
@@ -227,7 +226,7 @@ int play_audio(const wchar_t* soundFilePath);
 
 Returns 0 on success.
 
-On failure, returns a non-zero Windows error code (retrievable with GetLastError()), indicating the cause of failure (e.g., file not found, invalid path, or other API errors).
+On failure, returns a non-zero Windows error code, indicating the cause of failure.
 
 ```
 // Stops any currently playing sound.
@@ -243,7 +242,7 @@ This function takes no parameters
 
 Returns 0 on success. 
 
-On failure, returns a non-zero Windows error code (retrievable with GetLastError()), indicating the cause of failure (e.g., invalid handle, out-of-range coordinates, or other API errors).
+On failure, returns a non-zero Windows error code, indicating the cause of failure.
 
 # Example: Playing a .wav file in C
 
@@ -273,7 +272,7 @@ if not os.path.exists(wav_path):
 # Play the WAV file asynchronously
 result = wind.play_audio(wav_path)
 if result != 0:
-    print(f"play_audio failed with error code: {ctypes.GetLastError()}")
+    print(f"play_audio failed with error code: {result}")
 else:
     print("Audio started playing asynchronously")
 
@@ -283,7 +282,7 @@ time.sleep(0.3)
 # Stop the audio playback
 result = wind.stop_audio()
 if result != 0:
-    print(f"stop_audio failed with error code: {ctypes.GetLastError()}")
+    print(f"stop_audio failed with error code: {result)}")
 else:
     print("Audio stopped")
 ```
