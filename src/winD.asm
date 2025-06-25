@@ -3,10 +3,13 @@ default rel
 
 extern GetStdHandle
 extern WriteConsoleOutputW
+extern PlaySoundW
 extern GetLastError
 
 section .text
 global render_frame
+global play_audio
+global stop_audio
 
 %define STD_OUTPUT_HANDLE -11
 %define INVALID_HANDLE_VALUE -1
@@ -35,7 +38,7 @@ render_frame:
     push rbp
     mov rbp, rsp
 
-    ; Shadow space for GetStdHandle + WriteConsoleOutputW
+    ; Shadow space for GetStdHandle + WriteConsoleOutputW + GetLastError
     sub rsp, 96
 
     ; ---------------------------
@@ -44,7 +47,7 @@ render_frame:
     mov rax, r8
     imul rax, r9
     cmp rax, rdx
-    ja .error_handle
+    ja error_handle_render
 
     mov r11, rcx ; Preserve CHAR_INFO* 
 
@@ -58,7 +61,7 @@ render_frame:
     ; Invalid handle
     ; ---------------------------
     cmp rax, INVALID_HANDLE_VALUE
-    je .error_handle
+    je  error_handle_render
 
     mov r10, rax ; Preserve handle
 
@@ -123,7 +126,7 @@ render_frame:
     ; WinAPI error
     ; ---------------------------
     test eax, eax
-    jz .error_handle
+    jz error_handle_render
 
     ; ---------------------------
     ; Cleanup stack and restore frame pointer
@@ -134,7 +137,7 @@ render_frame:
     xor eax, eax ; 0 - successful
 ret
 
-.error_handle:
+error_handle_render:
     ; ---------------------------
     ; Store windows error code on failure
     ; ---------------------------
@@ -144,5 +147,89 @@ ret
     ; Cleanup stack and restore frame pointer
     ; ---------------------------
     add rsp, 96 ; reset shadow space
+    pop rbp
+ret
+
+; -----------------------------------------------------------------------------
+; int play_audio(LPCWSTR soundFilePath)
+;
+; Parameters:
+;   rcx = pointer to wide string (LPCWSTR) containing the sound file path
+;
+; Description:
+;   Plays the specified sound asynchronously using PlaySoundW with flags
+;   SND_FILENAME | SND_ASYNC. Returns 0 on success, non-zero on failure.
+; -----------------------------------------------------------------------------
+play_audio:
+    push rbp
+    mov rbp, rsp
+
+    sub rsp, 32
+
+    xor rdx, rdx        ; hmod = NULL
+    mov r8d, 0x00020001 ; SND_FILENAME | SND_ASYNC
+
+    call PlaySoundW
+
+    ; ---------------------------
+    ; WinAPI error
+    ; ---------------------------
+    test eax, eax
+    jnz error_handle_audio
+
+    ; ---------------------------
+    ; Cleanup stack and restore frame pointer
+    ; ---------------------------
+    add rsp, 32
+    pop rbp
+
+    xor eax, eax ; 0 - successful
+ret
+
+; -----------------------------------------------------------------------------
+; int stop_audio()
+;
+; Description:
+;   Stops any currently playing sound using PlaySoundW with NULL parameters.
+;   Returns 0 on success, non-zero on failure.
+; -----------------------------------------------------------------------------
+stop_audio:
+    push rbp
+
+    sub rsp, 32
+
+    ; ---------------------------
+    ; Set all parameters to NULL
+    ; ---------------------------
+    xor rcx, rcx
+    xor rdx, rdx
+    xor r8, r8
+    call PlaySoundW
+
+    ; ---------------------------
+    ; WinAPI error
+    ; ---------------------------
+    test eax, eax
+    jnz  error_handle_audio
+
+    ; ---------------------------
+    ; Cleanup stack and restore frame pointer
+    ; ---------------------------
+    add rsp, 32
+    pop rbp
+
+    xor eax, eax ; 0 - successful 
+ret 
+
+error_handle_audio:
+    ; ---------------------------
+    ; Store windows error code on failure
+    ; ---------------------------
+    call GetLastError
+
+    ; ---------------------------
+    ; Cleanup stack and restore frame pointer
+    ; ---------------------------
+    add rsp, 32 ; reset shadow space
     pop rbp
 ret
