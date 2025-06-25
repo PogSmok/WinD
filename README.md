@@ -228,7 +228,9 @@ Returns 0 on success.
 
 On failure, returns a non-zero Windows error code, indicating the cause of failure.
 
-```
+# Audio termination
+
+```c
 // Stops any currently playing sound.
 // Returns 0 on success, non-zero Windows error code on failure.
 int stop_audio(void);
