@@ -8,7 +8,9 @@
 
 By leveraging the Windows API function `WriteConsoleOutputW`, WinD updates large regions of the console buffer atomically, minimizing flickering and drastically reducing the number of system calls. This approach enables smooth rendering of rich Unicode and ASCII content with full control over foreground and background colors.
 
-The library is ideal for applications that require rapid and complex console output, such as games, real-time visualizations, or rendering pixel-art style images directly in the Windows console.
+In addition to fast and flicker-free console rendering, WinD provides simple asynchronous audio playback functionality using the Windows `PlaySoundW` API. It supports playing `.wav` files asynchronously and stopping playback on demand. This feature enables developers to add background music or sound effects that run concurrently while rendering frames, making WinD suitable for multimedia-rich console applications such as games or interactive visualizations.
+
+The library is ideal for applications that require rapid and complex console output combined with audio playback, such as games, real-time visualizations, or rendering pixel-art style images with synchronized sound directly in the Windows console.
 
 ---
 
