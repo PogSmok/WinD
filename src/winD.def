@@ -1,3 +1,5 @@
 LIBRARY winD
 EXPORTS
     render_frame
+    play_audio
+    stop_audio
