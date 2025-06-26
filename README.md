@@ -59,7 +59,7 @@ cd src
 
 nasm -f win64 winD.asm -o winD.obj
 
-link /DLL /NOENTRY /DEF:winD.def winD.obj kernel32.lib /OUT:winD.dll
+link /DLL /NOENTRY /DEF:winD.def winD.obj kernel32.lib winmm.lib /OUT:winD.dll
 
 ```
 
