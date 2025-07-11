@@ -16,7 +16,8 @@ extern PlaySoundW
 %define INVALID_HANDLE_VALUE               0xFFFFFFFFFFFFFFFF
 %define SND_FILENAME                       0x00020000
 %define SND_ASYNC                          0x00000001
-%define PLAY_FLAGS                         SND_FILENAME | SND_ASYNC
+%define SND_NODEFAULT                      0x00000002
+%define PLAY_FLAGS                         0x00020003 ; SND_FILENAME | SND_ASYNC | SND_NODEFAULT
 
 ; ==== SECTION BSS =====
 section .bss
@@ -119,7 +120,7 @@ render_frame:
     mov     eax, r14d
     shr     eax, 16          ; rows is upper 16 bits of r14d
     mov     ax, dx       
-    add     ax, r14w   
+    add     ax, r14w         ; cols is lower 16 bits of r14d 
     dec     ax                 
     mov     word [rsp+6], ax ; Bottom = offset_y + rows - 1
 
@@ -143,7 +144,7 @@ render_frame:
     add     rsp, 40 ; restore shadow space
     pop     rbp     ; restore stack frame
     
-    mov eax, eax ; 0 - successful
+    xor eax, eax ; 0 - successful
     ret
 
 .render_error:
@@ -176,6 +177,8 @@ render_frame:
 ;   On failure, to extract specific Windows error code call GetLastError.
 ; -----------------------------------------------------------------------------
 write_text:
+    push    rbp
+
     ; 32 bytes of shadow space + 28 bytes for CONSOLE_SCREEN_BUFFER_INFO + 4 bytes for lpMode
     sub     rsp, 64
 
@@ -269,6 +272,7 @@ write_text:
 
     add     rsp, 64 ; restore shadow space
 
+    pop     rbp
     xor     eax, eax ; return 0 (success)
     ret
 
@@ -333,6 +337,7 @@ write_text:
 
     add     rsp, 64 ; restore shadow space
 
+    pop     rbp
     xor     eax, eax ; return 0 (success)
     ret
 
@@ -344,6 +349,7 @@ write_text:
 
     add     rsp, 64 ; restore shadow space
 
+    pop     rbp
     or      eax, 0xFFFFFFFF ; return -1 (failure)
     ret
 
@@ -363,23 +369,30 @@ write_text:
 ;   On failure, to extract specific Windows error code call GetLastError.
 ; -----------------------------------------------------------------------------
 play_audio:
+    push    rbp
     sub     rsp, 32 ; 32 bytes of shadow space
 
     ; ---------------------------
     ; Call PlaySoundW(soundFilePath, NULL, SND_FILENAME | SND_ASYNC)
     ; ---------------------------
     xor     rdx, rdx        ; hmod = NULL
-    mov     r8d, PLAY_FLAGS ; SND_FILENAME | SND_ASYNC
+    mov     r8d, PLAY_FLAGS ; SND_FILENAME | SND_ASYNC | SND_NODEFAULT
     call    PlaySoundW
 
     ; restore before jump to decrease branch size
     add     rsp, 32 ; restore shadow space
 
     test    eax, eax
-    jnz     audio_error
-
-    xor     eax, eax ; 0 - successful
+    jnz     .play_success
+    
+    pop     rbp
+    or      eax, 0xFFFFFFFF ; return -1 (failure)
     ret
+
+.play_success:
+    pop     rbp
+    xor     eax, eax ; 0 - successful 
+    ret 
 
 ; -----------------------------------------------------------------------------
 ; int stop_audio()
@@ -393,6 +406,7 @@ play_audio:
 ;   On failure, to extract specific Windows error code call GetLastError.
 ; -----------------------------------------------------------------------------
 stop_audio:
+    push    rbp
     sub     rsp, 32 ; 32 bytes of shadow space
 
     ; ---------------------------
@@ -407,11 +421,13 @@ stop_audio:
     add     rsp, 32 ; restore shadow space
 
     test    eax, eax
-    jnz     audio_error
-
-    xor     eax, eax ; 0 - successful 
-    ret 
-
-audio_error:
+    jnz     .stop_success
+    
+    pop     rbp
     or      eax, 0xFFFFFFFF ; return -1 (failure)
     ret
+
+.stop_success:
+    pop     rbp
+    xor     eax, eax ; 0 - successful 
+    ret 
