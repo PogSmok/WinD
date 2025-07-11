@@ -162,4 +162,4 @@ Below are example outputs from the sample code in the [examples folder](https://
 
 ## License
 
-MIT License — see LICENSE file for details  
+MIT License — see [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) for details  
