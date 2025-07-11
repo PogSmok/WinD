@@ -163,7 +163,3 @@ Below are example outputs from the sample code in the [examples folder](https://
 ## License
 
 MIT License — see LICENSE file for details  
-
----
-
-If you want me to add anything else or adjust the style, just let me know!
