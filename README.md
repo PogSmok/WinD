@@ -4,20 +4,11 @@
   <strong>High-Performance Console Rendering and Audio Playback for Windows (x64 DLL)</strong>
   <br/><br/>
 
-  <div class="badges">
-    <a href="https://github.com/PogSmok/WinD/releases" style="text-decoration:none;">
-      <img src="https://img.shields.io/github/v/release/PogSmok/WinD" alt="Latest Release"/>
-    </a>
-    <a href="https://github.com/PogSmok/WinD/blob/main/LICENSE" style="text-decoration:none;">
-      <img src="https://img.shields.io/github/license/PogSmok/WinD" alt="License"/>
-    </a>
-    <a href="https://github.com/PogSmok/WinD/stargazers" style="text-decoration:none;">
-      <img src="https://img.shields.io/github/stars/PogSmok/WinD?style=social" alt="GitHub stars"/>
-    </a>
-    <a href="https://github.com/PogSmok/WinD/issues" style="text-decoration:none;">
-      <img src="https://img.shields.io/github/issues/PogSmok/WinD" alt="Open Issues"/>
-    </a>
-  </div>
+[![Latest Release](https://img.shields.io/github/v/release/PogSmok/WinD)](https://github.com/PogSmok/WinD/releases)
+[![License](https://img.shields.io/github/license/PogSmok/WinD)](https://github.com/PogSmok/WinD/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/PogSmok/WinD?style=social)](https://github.com/PogSmok/WinD/stargazers)
+[![Open Issues](https://img.shields.io/github/issues/PogSmok/WinD)](https://github.com/PogSmok/WinD/issues)
+
 </div>
 
 ---
