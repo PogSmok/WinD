@@ -1,7 +1,7 @@
 <div align="center">
   <img src="images/logo.png" alt="WinD Logo" height="300"/>
   <h1>WinD</h1>
-  <strong>High-Performance Console Rendering and Audio Playback for Windows (x64 DLL)</strong>
+  <strong>High-Performance Console Rendering and Audio Playback DLL for Windows x86_64</strong>
   <br/><br/>
 
 [![Latest Release](https://img.shields.io/github/v/release/PogSmok/WinD)](https://github.com/PogSmok/WinD/releases)
