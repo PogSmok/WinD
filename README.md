@@ -8,13 +8,11 @@
 
 ## Overview
 
-**WinD** (Windows Display) is a minimalistic, high-performance Windows DLL for real-time console rendering and asynchronous `.wav` audio playback, written entirely in x64 assembly.
+**WinD** (Windows Display) is a minimalistic, high-performance Windows DLL written entirely in x64 assembly for real-time console rendering and asynchronous `.wav` audio playback.
 
-WinD enables efficient full-frame updates of the Windows console by calling `WriteConsoleOutputW` just once per frame, drastically reducing flicker and avoiding the overhead of per-character output. Each character cell supports independent foreground/background color attributes and full Unicode, enabling vibrant and smooth console-based UIs, visualizations, or games.
+WinD enables efficient full-frame updates of the Windows console by calling `WriteConsoleOutputW` once per frame, significantly reducing flicker and eliminating the overhead of character-by-character output. Each character cell supports independent foreground and background color attributes along with full Unicode support, allowing for vibrant, smooth console-based UIs, visualizations, or games. For more advanced text styling beyond the basic `CHAR_INFO` structure, WinD also supports UTF-16 string output with Virtual Terminal (ANSI escape sequences) enabled.
 
-In addition, WinD exposes simple audio playback functions that use the `PlaySoundW` API to play `.wav` files asynchronously or stop them on demand — perfect for adding sound effects or music alongside rendering.
-
-The new `write_text()` function enables UTF-16 string output to the console with Virtual Terminal (ANSI escape) support for advanced text styling.
+Additionally, WinD provides simple audio playback functions leveraging the `PlaySoundW` API to play `.wav` files asynchronously or stop playback on demand — ideal for adding sound effects or music alongside rendering.
 
 ---
 
