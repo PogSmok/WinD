@@ -2,6 +2,22 @@
   <img src="images/logo.png" alt="WinD Logo" height="300"/>
   <h1>WinD</h1>
   <strong>High-Performance Console Rendering and Audio Playback for Windows (x64 DLL)</strong>
+  <br/><br/>
+
+  <div class="badges">
+    <a href="https://github.com/PogSmok/WinD/releases" style="text-decoration:none;">
+      <img src="https://img.shields.io/github/v/release/PogSmok/WinD" alt="Latest Release"/>
+    </a>
+    <a href="https://github.com/PogSmok/WinD/blob/main/LICENSE" style="text-decoration:none;">
+      <img src="https://img.shields.io/github/license/PogSmok/WinD" alt="License"/>
+    </a>
+    <a href="https://github.com/PogSmok/WinD/stargazers" style="text-decoration:none;">
+      <img src="https://img.shields.io/github/stars/PogSmok/WinD?style=social" alt="GitHub stars"/>
+    </a>
+    <a href="https://github.com/PogSmok/WinD/issues" style="text-decoration:none;">
+      <img src="https://img.shields.io/github/issues/PogSmok/WinD" alt="Open Issues"/>
+    </a>
+  </div>
 </div>
 
 ---
@@ -162,4 +178,4 @@ Below are example outputs from the sample code in the [examples folder](https://
 
 ## License
 
-MIT License — see [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) for details  
+MIT License — see [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) for details.  
