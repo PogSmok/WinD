@@ -1,290 +1,171 @@
 <div align="center">
-  <img src="images/logo.png" alt="WinD Logo" />
+  <img src="images/logo.png" alt="WinD Logo" height="300"/>
+  <h1>WinD</h1>
+  <strong>High-Performance Console Rendering and Audio Playback for Windows (x64 DLL)</strong>
 </div>
 
-# Overview
+---
 
-**WinD** (Windows Display) is a high-performance, lightweight Windows console rendering DLL implemented in assembly. Unlike traditional console output methods that print text line-by-line or character-by-character, WinD efficiently writes an entire rectangular buffer of character and attribute data to the console screen in a single API call.
+## Overview
 
-By leveraging the Windows API function `WriteConsoleOutputW`, WinD updates large regions of the console buffer atomically, minimizing flickering and drastically reducing the number of system calls. This approach enables smooth rendering of rich Unicode and ASCII content with full control over foreground and background colors.
+**WinD** (Windows Display) is a minimalistic, high-performance Windows DLL for real-time console rendering and asynchronous `.wav` audio playback, written entirely in x64 assembly.
 
-In addition to fast and flicker-free console rendering, WinD provides simple asynchronous audio playback functionality using the Windows `PlaySoundW` API. It supports playing `.wav` files asynchronously and stopping playback on demand. This feature enables developers to add background music or sound effects that run concurrently while rendering frames, making WinD suitable for multimedia-rich console applications such as games or interactive visualizations.
+WinD enables efficient full-frame updates of the Windows console by calling `WriteConsoleOutputW` just once per frame, drastically reducing flicker and avoiding the overhead of per-character output. Each character cell supports independent foreground/background color attributes and full Unicode, enabling vibrant and smooth console-based UIs, visualizations, or games.
 
-The library is ideal for applications that require rapid and complex console output combined with audio playback, such as games, real-time visualizations, or rendering pixel-art style images with synchronized sound directly in the Windows console.
+In addition, WinD exposes simple audio playback functions that use the `PlaySoundW` API to play `.wav` files asynchronously or stop them on demand — perfect for adding sound effects or music alongside rendering.
+
+The new `write_text()` function enables UTF-16 string output to the console with Virtual Terminal (ANSI escape) support for advanced text styling.
 
 ---
 
-# Why Render Entire Frames at Once?
+## Features
 
-Traditional console rendering typically involves outputting text sequentially—line by line or character by character—which can cause:
-
-- **Flickering:** Visible redraw artifacts due to partial screen updates.
-- **Performance overhead:** Multiple system calls slow down rendering, especially with large buffers.
-- **Limited control:** Difficulty in managing complex attribute changes and Unicode rendering efficiently.
-
-WinD solves these challenges by:
-
-- **Batch rendering:** Writing the full buffer in a single call reduces flicker and latency.
-- **Attribute precision:** Allows detailed control of foreground and background colors for each character cell.
-- **Unicode support:** Handles wide characters smoothly for richer text and graphics.
-- **Console “images”:** Enables drawing complex images and animations by treating the console screen as a pixel grid, where each character cell acts as a pixel with color attributes.
-
-This makes WinD uniquely suitable for rendering **entire images or frame buffers** inside the Windows console with fluid performance and vibrant color fidelity.
+- Atomic frame rendering via `WriteConsoleOutputW`
+- Color and Unicode support with per-cell `CHAR_INFO`
+- Low flicker, low latency — ideal for dynamic visuals
+- Simple `.wav` playback using `PlaySoundW` (async)
+- UTF-16 text output with Virtual Terminal processing (ANSI colors and styles)
+- Compact assembly codebase, no runtime dependencies
 
 ---
 
-# Files
+## Files
 
-- [images](https://github.com/PogSmok/WinD/tree/main/images) - Contains sample images and screenshots demonstrating the output and usage of the WinD library.
-- [src](https://github.com/PogSmok/WinD/tree/main/src) - Contains the assembly source code and related build files for the WinD library.
-- [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) - The license file specifying the terms under which the WinD library is distributed.
-- [README.md](https://github.com/PogSmok/WinD/blob/main/README.md) - The main documentation file providing an overview, build instructions, usage examples, and other relevant information about the WinD library.
+- [examples](https://github.com/PogSmok/WinD/tree/main/examples) - Sample codes demonstrating WinD usage 
+- [images](https://github.com/PogSmok/WinD/tree/main/images) - Sample images and screenshots demonstrating WinD output and usage.
+- [src](https://github.com/PogSmok/WinD/tree/main/src) - Assembly source code and build files.
+- [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) - License terms for WinD.
+- [README.md](https://github.com/PogSmok/WinD/blob/main/README.md) - This documentation.[p
 
 ---
 
-# Building
+## Building
 
-WinD can be built using the **Visual Studio Developer Command Prompt** or any compatible x64 toolchain supporting NASM and `link.exe`.
-
-### Prerequisites
+To build `winD.dll` you need:
 
 - NASM (Netwide Assembler)  
-- Visual Studio with MSVC x64 toolchain  
-- Windows SDK  
-
-### Manual Build Example
+- Visual Studio (x64 tools)  
+- Windows SDK (`kernel32.lib`, `winmm.lib`)  
 
 ```bash
-cd src
-
-nasm -f win64 winD.asm -o winD.obj
-
-link /DLL /NOENTRY /OPT:REF /OPT:ICF /DEF:winD.def winD.obj kernel32.lib winmm.lib /OUT:winD.dll
-
+cd src  
+nasm -f win64 winD.asm -o winD.obj  
+link /DLL /NOENTRY /OPT:REF /OPT:ICF /DEF:winD.def winD.obj kernel32.lib winmm.lib /OUT:winD.dll  
 ```
 
-This will produce:
+Output files:  
+- `winD.dll` — Runtime DLL  
+- `winD.lib` — Import library  
+- `winD.exp` — Export map  
 
-`winD.dll` (dynamic library)
+---
 
-`winD.lib` (import library for linking)
+## API: render_frame
 
-`winD.exp` (export map)
-
-# Usage
-
-```c
-// Signature (stdcall)
-void render_frame(CHAR_INFO* buffer, DWORD length, SHORT rows, SHORT cols, SHORT offset_x, SHORT offset_y);
-```
-### Parameters
-
-`buffer` A pointer to an array of `CHAR_INFO` structures ([CHAR_INFO specification](https://learn.microsoft.com/en-us/windows/console/char-info-str)). Each element represents a character and its associated text attributes (such as foreground/background color). The array should be organized in row-major order (rows of cols elements each).
-
-`length` The total number of `CHAR_INFO` elements in the buffer. This value must be greater than or equal to rows * cols to ensure the entire rectangular region can be read safely.
-
-`rows` The height of the rectangular region to render, specified as the number of character rows.
-
-`cols` The width of the rectangular region to render, specified as the number of character columns.
-
-`offset_x` The horizontal starting position (zero-based column index) within the console screen buffer where the upper-left corner of the rectangular region will be written. This allows you to place the rendered buffer anywhere within the console window.
-
-`offset_y` The vertical starting position (zero-based row index) within the console screen buffer where the upper-left corner of the rectangular region will be written.
-
-### Return Value
-
-Returns 0 on success. 
-
-On failure, returns a non-zero Windows error code, indicating the cause of failure.
-
-### Notes
-
-The buffer contents are written atomically to the console screen buffer using the Windows API function `WriteConsoleOutputW`. This ensures efficient and flicker-free updates.
-
-The specified `offset_x` and `offset_y` coordinates allow precise placement of the rendered region anywhere on the console screen buffer.
-
-The `rows` and `cols` parameters define the size of the rectangular region in the buffer that will be rendered. The function will not read beyond this region even if length is larger.
-
-To avoid errors, ensure that the coordinates and size of the region do not exceed the dimensions of the current console screen buffer.
-
-The `CHAR_INFO` structure combines both the character and its attribute (color, intensity, etc.), enabling rich text and colored graphics rendering in console applications.
-
-This function is ideal for rendering complex frames or images in the console efficiently by updating the entire region in a single call.
-
-# Example: Rendering Colored Text in Python
-```python
-import ctypes
-
-# Load the DLL
-wind = ctypes.WinDLL("./winD.dll")
-
-# --- Define Windows console types ---
-CHAR = ctypes.c_wchar   # Wide character (Unicode)
-WORD = ctypes.c_ushort  # 16-bit unsigned short
-
-class CHAR_INFO(ctypes.Structure):
-    _fields_ = [
-        ("Char", CHAR),
-        ("Attributes", WORD),
-    ]
-
-# --- Console color attribute constants ---
-# Foreground colors
-FOREGROUND_WHITE  = 0x000F
-FOREGROUND_CYAN   = 0x0003
-FOREGROUND_RED    = 0x0004
-FOREGROUND_BLUE   = 0x0001
-FOREGROUND_YELLOW = 0x0006
-FOREGROUND_GREEN  = 0x0002
-
-# Background colors
-BACKGROUND_MAGENTA = 0x0050
-BACKGROUND_GREEN   = 0x0020
-BACKGROUND_BLUE    = 0x0010
-BACKGROUND_RED     = 0x0040
-BACKGROUND_YELLOW  = 0x0060
-BACKGROUND_WHITE   = 0x0070
-
-# --- Configuration ---
-rows, cols = 12, 40  # Buffer dimensions
-
-# The text pattern to render — "WinD" in block letters
-text = [
-    "██     ██ ██ ███    ██ ██████  ",
-    "██     ██ ██ ████   ██ ██   ██ ",
-    "██     ██ ██ ██ ██  ██ ██   ██ ",
-    "██  █  ██ ██ ██  ██ ██ ██   ██ ",
-    "██ ███ ██ ██ ██   ████ ██   ██ ",
-    " ███ ███  ██ ██    ███ ██████  ",
-]
-
-start_row = 3  # Vertical offset of "WIND" in buffer
-start_col = 4  # Horizontal offset of "WIND" in buffer
-
-# --- Initialize buffer ---
-buffer_len = rows * cols
-buffer = (CHAR_INFO * buffer_len)()
-
-# Fill entire buffer with space and blue background + white foreground
-for i in range(buffer_len):
-    buffer[i].Char = ' '
-    buffer[i].Attributes = BACKGROUND_BLUE | FOREGROUND_WHITE
-
-# Overlay the "WinD" text with yellow background and red foreground
-for row_offset, line in enumerate(text):
-    for col_offset, ch in enumerate(line):
-        y = start_row + row_offset
-        x = start_col + col_offset
-        if 0 <= y < rows and 0 <= x < cols:
-            idx = y * cols + x
-            buffer[idx].Char = ch
-            buffer[idx].Attributes = BACKGROUND_YELLOW | FOREGROUND_RED
-
-# --- Setup function argument and return types ---
-wind.render_frame.argtypes = [
-    ctypes.POINTER(CHAR_INFO),  # buffer pointer
-    ctypes.c_uint32,            # buffer length (DWORD)
-    ctypes.c_short,             # rows (SHORT)
-    ctypes.c_short,             # cols (SHORT)
-    ctypes.c_short,             # offset_x (SHORT)
-    ctypes.c_short,             # offset_y (SHORT)
-]
-wind.render_frame.restype = ctypes.c_int
-
-# --- Call the DLL function ---
-offset_x = 95   # Horizontal screen offset to render buffer
-offset_y = 20   # Vertical screen offset to render buffer
-
-result = wind.render_frame(buffer, buffer_len, rows, cols, offset_x, offset_y)
-
-# Check for errors
-if result != 0:
-    print(f"render_frame failed with error code: {result}")
-
-```
-
-## Result:
- <img src="images/example.png" alt="WinD Logo" />
-
-# Audio Playback API
-
-WinD also provides simple asynchronous audio playback functions using the Windows PlaySoundW API. These can play .wav files and stop playback on demand. This allows for playing music while rendering frames.
-
-```c
-// Plays a WAV file asynchronously.
-// Parameters:
-//   soundFilePath - wide string path to the WAV file.
-// Returns 0 on success, non-zero Windows error code on failure.
-int play_audio(const wchar_t* soundFilePath);
+```c  
+void render_frame(const CHAR_INFO* buffer, DWORD length, SHORT rows, SHORT cols, SHORT offset_x, SHORT offset_y);  
 ```
 
 ### Parameters
 
-`soundFilePath` — A wide string (`const wchar_t*`) representing the path to the `.wav` file to be played.
+- `buffer`: Pointer to a flat array of `CHAR_INFO` structs (row-major order)  
+- `length`: Total number of `CHAR_INFO` elements in the buffer  
+- `rows`, `cols`: Dimensions of the rectangular region to render  
+- `offset_x`, `offset_y`: Position in the console screen buffer where the region will be drawn  
 
-### Return Value
+### Return
 
-Returns 0 on success.
+- `0` on success  
+- `-1` on failure (use `GetLastError` for detailed Windows error code)  
 
-On failure, returns a non-zero Windows error code, indicating the cause of failure.
+### Description
 
-# Audio termination
+Performs atomic rendering of a rectangular console region by writing a full frame in a single call to `WriteConsoleOutputW`. This eliminates flicker caused by per-character output and supports full Unicode and color attributes per character cell. The function caches the console output handle internally for performance.
 
-```c
-// Stops any currently playing sound.
-// Returns 0 on success, non-zero Windows error code on failure.
-int stop_audio(void);
+---
+
+## API: write_text
+
+```c  
+int write_text(const wchar_t* buffer, DWORD length, CHAR cursor_persist);  
 ```
 
 ### Parameters
 
-This function takes no parameters
+- `buffer`: Pointer to a UTF-16 encoded string  
+- `length`: Length of the string in characters  
+- `cursor_persist`: If non-zero, the console cursor returns to its original position after writing; if zero, the cursor stays at the end of the written text.
+  
+### Return
 
-### Return Value
+- `0` on success  
+- `-1` on failure (use `GetLastError` for detailed Windows error code)  
 
-Returns 0 on success. 
+### Description
 
-On failure, returns a non-zero Windows error code, indicating the cause of failure.
+Enables Virtual Terminal (ANSI escape) processing on the console output, allowing the use of advanced text styling such as 24-bit RGB colors and cursor movement via escape sequences. Writes the UTF-16 string to the console using `WriteConsoleW`. Optionally preserves or resets the cursor position after output. This function caches the console output handle and console mode for efficient repeated calls.
 
-# Example: Playing a .wav file in C
+---
 
-```python
-import ctypes
-import time
-import os
+## API: play_audio
 
-# Load the DLL
-wind = ctypes.WinDLL("./winD.dll")
-
-# Define argument and return types for play_audio and stop_audio
-wind.play_audio.argtypes = [ctypes.c_wchar_p]
-wind.play_audio.restype = ctypes.c_int
-
-wind.stop_audio.argtypes = []
-wind.stop_audio.restype = ctypes.c_int
-
-# Path to your WAV file (use a valid absolute path)
-wav_path = r"C:\Windows\Media\chimes.wav"
-
-# Check if the file exists
-if not os.path.exists(wav_path):
-    print(f"Audio file not found: {wav_path}")
-    exit(1)
-
-# Play the WAV file asynchronously
-result = wind.play_audio(wav_path)
-if result != 0:
-    print(f"play_audio failed with error code: {result}")
-else:
-    print("Audio started playing asynchronously")
-
-# Wait for 0.3 seconds while the audio plays
-time.sleep(0.3)
-
-# Stop the audio playback
-result = wind.stop_audio()
-if result != 0:
-    print(f"stop_audio failed with error code: {result)}")
-else:
-    print("Audio stopped")
+```c  
+int play_audio(const wchar_t* soundFilePath);  
 ```
+
+### Parameters
+
+- `soundFilePath`: Wide string path to a `.wav` file  
+
+### Return
+
+- `0` on success  
+- `-1` on failure (use `GetLastError` for detailed Windows error code)  
+
+### Description
+
+Plays the specified `.wav` sound file asynchronously using `PlaySoundW` with flags `SND_FILENAME | SND_ASYNC`. Ideal for background music or sound effects in console applications.
+
+---
+
+## API: stop_audio
+
+```c  
+int stop_audio(void);  
+```
+
+### Return
+
+- `0` on success  
+- `-1` on failure (use `GetLastError` for detailed Windows error code)  
+
+### Description
+
+Stops any currently playing sound by calling `PlaySoundW` with `NULL` parameters.
+
+---
+
+## Examples
+
+Below are example outputs from the sample code in the [examples folder](https://github.com/PogSmok/WinD/tree/main/examples):
+
+### `render_frame.py`
+
+<img src="images/render_frame.png" alt="render_frame.py result"/>
+
+### `write_text.c`
+
+<img src="images/write_text.png" alt="write_text.c result"/>
+
+### `play_audio.go`
+
+*This one works as expected — trust me! :)*
+
+
+## License
+
+MIT License — see LICENSE file for details  
+
+---
+
+If you want me to add anything else or adjust the style, just let me know!
