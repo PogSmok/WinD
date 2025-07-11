@@ -35,7 +35,7 @@ The new `write_text()` function enables UTF-16 string output to the console with
 - [images](https://github.com/PogSmok/WinD/tree/main/images) - Sample images and screenshots demonstrating WinD output and usage.
 - [src](https://github.com/PogSmok/WinD/tree/main/src) - Assembly source code and build files.
 - [LICENSE](https://github.com/PogSmok/WinD/blob/main/LICENSE) - License terms for WinD.
-- [README.md](https://github.com/PogSmok/WinD/blob/main/README.md) - This documentation.[p
+- [README.md](https://github.com/PogSmok/WinD/blob/main/README.md) - This documentation.
 
 ---
 
