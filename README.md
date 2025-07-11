@@ -32,6 +32,8 @@ Additionally, WinD provides simple audio playback functions leveraging the `Play
 - UTF-16 text output with Virtual Terminal processing (ANSI colors and styles)
 - Compact assembly codebase, no runtime dependencies
 
+WinD doesn't "wind" it for you? Suggest new features or report any bugs you encounter [here](https://github.com/PogSmok/WinD/issues).
+
 ---
 
 ## Files
@@ -166,6 +168,7 @@ Below are example outputs from the sample code in the [examples folder](https://
 
 *This one works as expected — trust me! :)*
 
+---
 
 ## License
 
